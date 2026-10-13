@@ -1,0 +1,44 @@
+-- ============================================================
+-- 015 — Qualifications instead of benefits
+-- ============================================================
+-- Three product changes, one of which needs the database.
+--
+-- ── 1. benefits -> qualifications (this migration) ────────────
+-- The posting form asked for "Benefits", which is the wrong prompt for how PAC
+-- actually writes roles. Renamed rather than added-and-abandoned so there is one
+-- field with the right name.
+--
+-- Safe: verified 0 rows in `jobs` and 0 with benefits text before running, so
+-- nothing is being carried across.
+--
+-- ── 2. Salaries removed from the product (no schema change) ───
+-- salary_min, salary_max and salary_currency are dropped from every form and
+-- every surface, but the COLUMNS STAY. Nothing populates them (verified 0 rows),
+-- and keeping them means reinstating salary later is a UI change rather than a
+-- migration plus a backfill. Dropping columns to express a UI decision is not a
+-- trade worth making.
+--
+-- ── 3. The employer is admin-only information (no schema change) ─
+-- Applicants must not see which employer a role belongs to — PAC sits between
+-- the two, and a named employer invites candidates to go direct.
+--
+-- Deliberately NOT enforced by RLS. `companies` is world-readable by design and
+-- has to stay that way: an employer needs to read their own company, and the
+-- admin views join through it. The concealment is that no public surface selects
+-- or renders company data — job cards, job detail and browse results carry no
+-- company name, no logo and no verified badge.
+--
+-- Stating the consequence plainly: the company row is still reachable through
+-- the REST API by anyone with the anon key. What is protected is the LINK
+-- between a listing and an employer, since `jobs.company_id` is only ever
+-- selected on admin and owner surfaces. If the employer's identity itself ever
+-- needs to be secret rather than merely unadvertised, that requires revoking
+-- public read on `companies` and rewriting the employer dashboard to suit —
+-- worth doing deliberately, not as a side effect of a UI change.
+-- ============================================================
+
+alter table public.jobs rename column benefits to qualifications;
+
+-- Verify:
+--   select column_name from information_schema.columns
+--    where table_name = 'jobs' and column_name in ('benefits','qualifications');

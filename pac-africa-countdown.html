@@ -1,0 +1,664 @@
+<!-- pac.africa — holding page / countdown
+     Design tokens sourced from jobs.pac.africa token sheet.
+     EDIT THE LAUNCH DATE ON LINE ~470 (const LAUNCH_TARGET). -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+/* ─────────────────────────────────────────────
+   TOKENS
+   ───────────────────────────────────────────── */
+:root {
+  /* type */
+  --font-primary: "Instrument Sans", "Instrument Sans Fallback", system-ui, sans-serif;
+  --font-display: "Instrument Serif", Georgia, serif;
+  --fs-xs: 12px;  --fs-sm: 14px;  --fs-md: 16px;
+  --fs-lg: 18px;  --fs-xl: 24px;  --fs-2xl: 60px;
+  --lh-base: 24px;
+
+  /* spacing */
+  --s1: 4px;  --s2: 6px;  --s3: 8px;  --s4: 10px;
+  --s5: 12px; --s6: 16px; --s7: 20px; --s8: 24px;
+
+  /* radius */
+  --r-xs: 16px;
+  --r-sm: 9999px;
+
+  /* motion */
+  --d-instant: 150ms;
+  --d-fast: 200ms;
+  --d-settle: 620ms;
+  --ease: cubic-bezier(.22,.61,.36,1);
+
+  /* brand */
+  --accent: #e8532e;
+  --accent-dim: #b83d1e;
+}
+
+/* dark (default) */
+:root, [data-theme="dark"] {
+  --surface-base:   #000000;
+  --surface-raised: #0a0a0a;
+  --surface-muted:  #1a1a1a;
+  --surface-clay:   #1a1a1a;
+  --text-primary:   #f5f5f0;
+  --text-secondary: #8a8a8a;
+  --border-hair:    rgba(255,255,255,.06);
+  --clay-shadow:
+      8px 8px 16px rgba(0,0,0,.6),
+     -4px -4px 10px rgba(255,255,255,.03);
+  --clay-shadow-lift:
+     12px 12px 26px rgba(0,0,0,.72),
+     -5px -5px 14px rgba(255,255,255,.045);
+  --clay-press: inset 4px 4px 10px rgba(0,0,0,.55),
+                inset -3px -3px 8px rgba(255,255,255,.025);
+  --mesh-a: rgba(232,83,46,.13);
+  --mesh-b: rgba(232,83,46,.06);
+  --grain-opacity: .05;
+}
+
+[data-theme="light"] {
+  --surface-base:   #f5f5f0;
+  --surface-raised: #faf8f4;
+  --surface-muted:  #ebe8e1;
+  --surface-clay:   #ffffff;
+  --text-primary:   #0a0a0a;
+  --text-secondary: #6e6e6e;
+  --border-hair:    rgba(0,0,0,.05);
+  --clay-shadow:
+      8px 8px 20px rgba(0,0,0,.10),
+     -4px -4px 12px rgba(255,255,255,.9);
+  --clay-shadow-lift:
+     12px 12px 28px rgba(0,0,0,.14),
+     -5px -5px 16px rgba(255,255,255,1);
+  --clay-press: inset 4px 4px 10px rgba(0,0,0,.08),
+                inset -3px -3px 8px rgba(255,255,255,.9);
+  --mesh-a: rgba(232,83,46,.16);
+  --mesh-b: rgba(232,83,46,.07);
+  --grain-opacity: .035;
+}
+
+/* ─────────────────────────────────────────────
+   RESET / BASE
+   ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-primary);
+  font-size: var(--fs-md);
+  font-weight: 400;
+  line-height: var(--lh-base);
+  color: var(--text-primary);
+  background: var(--surface-base);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color var(--d-fast) var(--ease),
+              color var(--d-fast) var(--ease);
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────────
+   AMBIENT BACKGROUND
+   ───────────────────────────────────────────── */
+.ambient {
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(48% 42% at 22% 28%, var(--mesh-a) 0%, transparent 62%),
+    radial-gradient(42% 46% at 78% 68%, var(--mesh-b) 0%, transparent 60%),
+    radial-gradient(56% 38% at 58% 12%, var(--mesh-b) 0%, transparent 66%);
+  filter: blur(28px);
+  animation: drift 24s var(--ease) infinite alternate;
+}
+
+@keyframes drift {
+  0%   { transform: translate3d(0,0,0)        scale(1);    }
+  50%  { transform: translate3d(2.5%,-2%,0)   scale(1.07); }
+  100% { transform: translate3d(-2%,2.5%,0)   scale(1.03); }
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─────────────────────────────────────────────
+   LAYOUT
+   ───────────────────────────────────────────── */
+.shell {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--s8);
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* ── NAV ── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s6);
+  padding: var(--s5) var(--s7);
+  border-radius: var(--r-xs);
+  background: var(--surface-clay);
+  box-shadow: var(--clay-shadow);
+  border: 1px solid var(--border-hair);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s5);
+  font-size: var(--fs-sm);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.brand-mark {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  background: var(--accent);
+  display: grid; place-items: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1;
+  flex: none;
+}
+
+.brand-rule {
+  width: 1px; height: 18px;
+  background: var(--border-hair);
+}
+
+.brand-sub {
+  color: var(--text-secondary);
+  letter-spacing: .1em;
+  font-weight: 400;
+  font-size: var(--fs-xs);
+}
+
+.theme-btn {
+  appearance: none;
+  border: 1px solid var(--border-hair);
+  background: var(--surface-muted);
+  color: var(--text-secondary);
+  width: 38px; height: 38px;
+  border-radius: var(--r-sm);
+  display: grid; place-items: center;
+  cursor: pointer;
+  flex: none;
+  transition: color var(--d-instant) var(--ease),
+              box-shadow var(--d-instant) var(--ease),
+              transform var(--d-instant) var(--ease);
+}
+.theme-btn:hover { color: var(--accent); transform: translateY(-1px); }
+.theme-btn:active { box-shadow: var(--clay-press); transform: translateY(0); }
+.theme-btn svg { width: 17px; height: 17px; }
+
+/* ── MAIN ── */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px, 9vh, 88px) 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s4);
+  align-self: flex-start;
+  padding: var(--s2) var(--s6) var(--s2) var(--s4);
+  border-radius: var(--r-sm);
+  background: var(--surface-clay);
+  box-shadow: var(--clay-shadow);
+  border: 1px solid var(--border-hair);
+  font-size: var(--fs-xs);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--s8);
+}
+
+.pulse {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+  animation: pulse 2.4s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 rgba(232,83,46,.5); }
+  60%      { opacity: .55; box-shadow: 0 0 0 7px rgba(232,83,46,0); }
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(38px, 7.2vw, var(--fs-2xl));
+  line-height: 1.03;
+  letter-spacing: -.015em;
+  margin: 0 0 var(--s7);
+  max-width: 15ch;
+}
+h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.lede {
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  max-width: 52ch;
+  margin: 0 0 clamp(32px, 5vh, 52px);
+}
+
+/* ── COUNTDOWN ── */
+.countdown-label {
+  font-size: var(--fs-xs);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--s6);
+}
+
+.countdown {
+  display: flex;
+  gap: var(--s6);
+  flex-wrap: wrap;
+  margin-bottom: clamp(36px, 6vh, 60px);
+}
+
+.unit {
+  position: relative;
+  flex: 1 1 118px;
+  min-width: 96px;
+  padding: var(--s8) var(--s6) var(--s7);
+  border-radius: var(--r-xs);
+  background: var(--surface-clay);
+  box-shadow: var(--clay-shadow);
+  border: 1px solid var(--border-hair);
+  text-align: center;
+  overflow: hidden;
+  transition: box-shadow var(--d-fast) var(--ease),
+              transform var(--d-fast) var(--ease);
+}
+
+.unit::after {
+  content: "";
+  position: absolute;
+  left: var(--s7); right: var(--s7); bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: .55;
+  transition: transform var(--d-settle) var(--ease);
+}
+.unit.tick::after { transform: scaleX(1); }
+
+.unit-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 6.6vw, 54px);
+  line-height: 1;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--s5);
+}
+
+.unit-value.tick {
+  animation: settle var(--d-settle) var(--ease);
+}
+@keyframes settle {
+  0%   { transform: translateY(-7px); opacity: .18; }
+  55%  { transform: translateY(1.5px); opacity: 1; }
+  100% { transform: translateY(0);     opacity: 1; }
+}
+
+.unit-name {
+  font-size: var(--fs-xs);
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ── SNEAK PEEK CARD ── */
+.peek {
+  display: flex;
+  align-items: center;
+  gap: var(--s8);
+  flex-wrap: wrap;
+  padding: var(--s8);
+  border-radius: var(--r-xs);
+  background: var(--surface-clay);
+  box-shadow: var(--clay-shadow);
+  border: 1px solid var(--border-hair);
+  transition: box-shadow var(--d-fast) var(--ease),
+              transform var(--d-fast) var(--ease);
+}
+.peek:hover {
+  box-shadow: var(--clay-shadow-lift);
+  transform: translateY(-3px);
+}
+
+.peek-body { flex: 1 1 300px; min-width: 260px; }
+
+.peek-tag {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--s4);
+}
+
+.peek h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-xl);
+  line-height: 1.2;
+  margin: 0 0 var(--s4);
+  letter-spacing: -.01em;
+}
+
+.peek p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 48ch;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s4);
+  flex: none;
+  padding: var(--s5) var(--s8);
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-decoration: none;
+  box-shadow: var(--clay-shadow);
+  transition: background var(--d-instant) var(--ease),
+              transform var(--d-instant) var(--ease),
+              box-shadow var(--d-instant) var(--ease);
+}
+.cta:hover {
+  background: var(--accent-dim);
+  transform: translateY(-2px);
+  box-shadow: var(--clay-shadow-lift);
+}
+.cta:active { transform: translateY(0); box-shadow: var(--clay-press); }
+.cta svg {
+  width: 14px; height: 14px;
+  transition: transform var(--d-fast) var(--ease);
+}
+.cta:hover svg { transform: translateX(3px); }
+
+/* ── FOOTER ── */
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s6);
+  flex-wrap: wrap;
+  padding-top: var(--s8);
+  margin-top: var(--s8);
+  border-top: 1px solid var(--border-hair);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  letter-spacing: .04em;
+}
+footer a {
+  text-decoration: none;
+  transition: color var(--d-instant) var(--ease);
+}
+footer a:hover { color: var(--accent); }
+
+/* ── REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: rise var(--d-settle) var(--ease) forwards;
+}
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+.d1 { animation-delay: 60ms; }
+.d2 { animation-delay: 150ms; }
+.d3 { animation-delay: 240ms; }
+.d4 { animation-delay: 330ms; }
+.d5 { animation-delay: 430ms; }
+.d6 { animation-delay: 540ms; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .shell { padding: var(--s6); }
+  .nav { padding: var(--s4) var(--s5); }
+  .brand-rule, .brand-sub { display: none; }
+  .countdown { gap: var(--s5); }
+  .unit { flex: 1 1 calc(50% - var(--s5)); padding: var(--s7) var(--s5) var(--s6); }
+  .peek { gap: var(--s7); }
+  .cta { width: 100%; justify-content: center; }
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  .ambient { animation: none; }
+}
+</style>
+
+<div class="ambient" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <nav class="nav reveal d1" aria-label="Primary">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">P</span>
+      <span>PAC Africa</span>
+      <span class="brand-rule" aria-hidden="true"></span>
+      <span class="brand-sub">Priority Activator Consulting</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button"
+            aria-label="Switch to light theme">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"></circle>
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+      </svg>
+    </button>
+  </nav>
+
+  <main>
+    <span class="eyebrow reveal d2">
+      <span class="pulse" aria-hidden="true"></span>
+      Rebuilding
+    </span>
+
+    <h1 class="reveal d2">
+      The new pac.africa is <em>almost here</em>
+    </h1>
+
+    <p class="lede reveal d3">
+      We are rebuilding from the ground up on a faster, more secure
+      foundation. Same team, same work, considerably better craft.
+      Our job board is already live on the new stack.
+    </p>
+
+    <p class="countdown-label reveal d4">Launching in</p>
+
+    <div class="countdown reveal d4" role="timer" aria-live="off"
+         aria-label="Time remaining until launch">
+      <div class="unit">
+        <span class="unit-value" id="d">00</span>
+        <span class="unit-name">Days</span>
+      </div>
+      <div class="unit">
+        <span class="unit-value" id="h">00</span>
+        <span class="unit-name">Hours</span>
+      </div>
+      <div class="unit">
+        <span class="unit-value" id="m">00</span>
+        <span class="unit-name">Minutes</span>
+      </div>
+      <div class="unit">
+        <span class="unit-value" id="s">00</span>
+        <span class="unit-name">Seconds</span>
+      </div>
+    </div>
+
+    <div class="peek reveal d5">
+      <div class="peek-body">
+        <span class="peek-tag">Live now</span>
+        <h2>See where we are heading</h2>
+        <p>
+          jobs.pac.africa is running on the new platform today.
+          Vetted roles across Kenya and East Africa, built with the
+          same design system arriving here shortly.
+        </p>
+      </div>
+      <a class="cta" href="https://jobs.pac.africa/" rel="noopener">
+        Browse jobs
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.4" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h13M12 5l7 7-7 7"></path>
+        </svg>
+      </a>
+    </div>
+  </main>
+
+  <footer class="reveal d6">
+    <span>Westlands, Nairobi, Kenya</span>
+    <span>
+      <a href="mailto:info@pac.africa">info@pac.africa</a>
+    </span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ══════════════════════════════════════════
+     SET YOUR LAUNCH DATE HERE
+     Format: "YYYY-MM-DDTHH:mm:ss+03:00"  (EAT)
+     ══════════════════════════════════════════ */
+  const LAUNCH_TARGET = "2026-09-30T09:00:00+03:00";
+
+  const target = new Date(LAUNCH_TARGET).getTime();
+  const fields = {
+    d: document.getElementById("d"),
+    h: document.getElementById("h"),
+    m: document.getElementById("m"),
+    s: document.getElementById("s")
+  };
+  const prev = { d: null, h: null, m: null, s: null };
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+
+  function paint(key, value) {
+    if (prev[key] === value) return;
+    const el = fields[key];
+    el.textContent = value;
+
+    if (!reduced && prev[key] !== null) {
+      const unit = el.closest(".unit");
+      el.classList.remove("tick");
+      unit.classList.remove("tick");
+      void el.offsetWidth;
+      el.classList.add("tick");
+      unit.classList.add("tick");
+      setTimeout(function () {
+        el.classList.remove("tick");
+        unit.classList.remove("tick");
+      }, 660);
+    }
+    prev[key] = value;
+  }
+
+  function tick() {
+    let diff = target - Date.now();
+
+    if (diff <= 0) {
+      ["d", "h", "m", "s"].forEach(function (k) { paint(k, "00"); });
+      document.querySelector("h1").innerHTML = "The new pac.africa is <em>live</em>";
+      document.querySelector(".countdown-label").textContent = "We are open";
+      clearInterval(timer);
+      return;
+    }
+
+    const sec = Math.floor(diff / 1000);
+    paint("d", pad(Math.floor(sec / 86400)));
+    paint("h", pad(Math.floor(sec / 3600) % 24));
+    paint("m", pad(Math.floor(sec / 60) % 60));
+    paint("s", pad(sec % 60));
+  }
+
+  tick();
+  const timer = setInterval(tick, 1000);
+
+  /* ── Theme toggle ── */
+  const root = document.documentElement;
+  const btn = document.getElementById("themeBtn");
+  const icon = document.getElementById("themeIcon");
+
+  const SUN = '<circle cx="12" cy="12" r="4.2"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>';
+  const MOON = '<path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8z"></path>';
+
+  let theme = "dark";
+  root.setAttribute("data-theme", theme);
+
+  btn.addEventListener("click", function () {
+    theme = theme === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", theme);
+    icon.innerHTML = theme === "dark" ? SUN : MOON;
+    btn.setAttribute(
+      "aria-label",
+      theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+    );
+  });
+})();
+</script>

@@ -1,0 +1,31 @@
+-- ============================================================
+-- 011 — Stop publishing the counts
+-- ============================================================
+-- The homepage hero showed live counts through public.stats(): live roles,
+-- applications on file, employers. Those have been removed from the page — the
+-- application total is commercially sensitive while the board is being rebuilt,
+-- and "4,355 applications on file" also advertises exactly how much personal
+-- data sits behind the site.
+--
+-- Taking them off the page is not enough on its own. stats() is SECURITY
+-- DEFINER and was granted to anon precisely so a signed-out visitor could read
+-- it, which means the numbers stayed available at
+-- /rest/v1/rpc/stats to anyone who looked. Removing the markup would only have
+-- hidden them from people who don't.
+--
+-- So anon loses EXECUTE. `authenticated` keeps it: the figures are not secret
+-- from signed-in staff, and leaving the grant means the hero can be restored
+-- later without another migration.
+--
+-- The function itself is left in place. It is the correct way to count a table
+-- that RLS hides — /admin still uses direct counts because an admin can read
+-- the rows anyway.
+-- ============================================================
+
+revoke execute on function public.stats() from anon;
+
+-- Verify: expect no rows.
+--   select p.proname
+--     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+--    where n.nspname = 'public'
+--      and has_function_privilege('anon', p.oid, 'EXECUTE');

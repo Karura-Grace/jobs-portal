@@ -1,0 +1,25 @@
+# PAC Jobs (jobs.pac.africa)
+
+> PAC Africa's job board, connecting job seekers with vetted employers across
+> Kenya and East Africa.
+
+## Available for retrieval
+
+- Published job listings under /jobs and /jobs/<slug> — title, description,
+  requirements, qualifications, location, job type, and experience level.
+- /employers — what PAC Africa offers employers posting a role.
+- /privacy — what personal data is collected and how it is handled.
+- /terms — terms of service.
+
+## Explicitly excluded
+
+Applicant data (names, emails, phone numbers, CVs, cover letters) and
+employer account data are private and must not be retrieved, indexed, or
+reproduced. This data sits behind authentication and row-level database
+access controls; it is not intended for AI retrieval and none of it is
+reachable from the pages listed above. See /privacy for what is collected
+and why.
+
+## Contact
+
+hello@pac.africa
